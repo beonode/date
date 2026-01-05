@@ -28,11 +28,7 @@ func FromISO8601(date string) (Date, error) {
 
 func FromTime(t time.Time) Date {
 	y, m, d := t.Date()
-	return Date{
-		Year:  y,
-		Month: m,
-		Day:   d,
-	}
+	return Date{y, m, d}
 }
 
 func New(year int, month time.Month, day int) (Date, error) {
@@ -86,12 +82,7 @@ func (d Date) IsAfter(o Date) bool {
 
 //goland:noinspection GoMixedReceiverTypes
 func (d Date) Time(l *time.Location) time.Time {
-	return time.Date(d.Year, d.Month, d.Day, 0, 0, 0, 0, l)
-}
-
-//goland:noinspection GoMixedReceiverTypes
-func (d Date) add(years, months, days int) Date {
-	return FromTime(d.Time(time.UTC).AddDate(years, months, days))
+	return startOfDay(d.Year, d.Month, d.Day, l)
 }
 
 //goland:noinspection GoMixedReceiverTypes
@@ -211,22 +202,22 @@ func (d *Date) Scan(value any) error {
 
 func StartOfDay(t time.Time) time.Time {
 	y, m, d := t.Date()
-	return time.Date(y, m, d, 0, 0, 0, 0, t.Location())
+	return startOfDay(y, m, d, t.Location())
 }
 
 //goland:noinspection GoMixedReceiverTypes
 func (d Date) StartOfDay(l *time.Location) time.Time {
-	return time.Date(d.Year, d.Month, d.Day, 0, 0, 0, 0, l)
+	return startOfDay(d.Year, d.Month, d.Day, l)
 }
 
 func EndOfDay(t time.Time) time.Time {
 	y, m, d := t.Date()
-	return time.Date(y, m, d, 23, 59, 59, 1e9-1, t.Location())
+	return endOfDay(y, m, d, t.Location())
 }
 
 //goland:noinspection GoMixedReceiverTypes
 func (d Date) EndOfDay(l *time.Location) time.Time {
-	return EndOfDay(d.Time(l))
+	return endOfDay(d.Year, d.Month, d.Day, l)
 }
 
 func DiffInDays(d1 Date, d2 Date) int {
@@ -242,6 +233,19 @@ func (d Date) StartOfMonth() Date {
 //goland:noinspection GoMixedReceiverTypes
 func (d Date) EndOfMonth() Date {
 	return d.add(0, 1, -d.Day)
+}
+
+//goland:noinspection GoMixedReceiverTypes
+func (d Date) add(years, months, days int) Date {
+	return FromTime(d.Time(time.UTC).AddDate(years, months, days))
+}
+
+func startOfDay(y int, m time.Month, d int, l *time.Location) time.Time {
+	return time.Date(y, m, d, 0, 0, 0, 0, l)
+}
+
+func endOfDay(y int, m time.Month, d int, l *time.Location) time.Time {
+	return time.Date(y, m, d, 23, 59, 59, 1e9-1, l)
 }
 
 var monthDays = map[int]int{
