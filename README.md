@@ -37,3 +37,6 @@ func main() {
 ```
 
 Both `Date` and `NullDate` implement the `sql.Scanner` and `driver.Valuer` interfaces.
+
+## License
+MIT
