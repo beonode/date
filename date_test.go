@@ -548,17 +548,29 @@ func TestDate_LastOfWeek(t *testing.T) {
 //goland:noinspection GoStructInitializationWithoutFieldNames
 func TestDate_Scan(t *testing.T) {
 	cases := []struct {
-		input interface{}
+		name  string
+		input any
 		want  Date
 	}{
 		{
+			name:  "time.Time",
 			input: time.Date(2023, time.September, 28, 0, 0, 0, 0, time.UTC),
+			want:  Date{2023, time.September, 28},
+		},
+		{
+			name:  "string",
+			input: "2023-09-28",
+			want:  Date{2023, time.September, 28},
+		},
+		{
+			name:  "[]byte",
+			input: []byte("2023-09-28"),
 			want:  Date{2023, time.September, 28},
 		},
 	}
 
 	for _, c := range cases {
-		t.Run(fmt.Sprintf("%v", c.input), func(t *testing.T) {
+		t.Run(c.name, func(t *testing.T) {
 			var date Date
 			err := date.Scan(c.input)
 			if err != nil {
@@ -567,6 +579,27 @@ func TestDate_Scan(t *testing.T) {
 
 			if !date.Equal(c.want) {
 				t.Errorf("Date = %v; want %v", date, c.want)
+			}
+		})
+	}
+}
+
+func TestDate_Scan_Errors(t *testing.T) {
+	cases := []struct {
+		name  string
+		input any
+	}{
+		{"invalid string", "not-a-date"},
+		{"invalid []byte", []byte("not-a-date")},
+		{"unsupported type", 12345},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			var date Date
+			err := date.Scan(c.input)
+			if err == nil {
+				t.Errorf("Scan(%v) = nil; want error", c.input)
 			}
 		})
 	}
