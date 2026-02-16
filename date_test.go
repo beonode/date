@@ -521,6 +521,31 @@ func TestDate_Equal(t *testing.T) {
 }
 
 //goland:noinspection GoStructInitializationWithoutFieldNames
+func TestDate_Compare(t *testing.T) {
+	cases := []struct {
+		a, b Date
+		want int
+	}{
+		{Date{2023, 8, 24}, Date{2023, 8, 24}, 0},
+		{Date{2023, 8, 24}, Date{2023, 8, 25}, -1},
+		{Date{2023, 8, 24}, Date{2023, 8, 23}, 1},
+		{Date{2023, 8, 24}, Date{2023, 9, 24}, -1},
+		{Date{2023, 8, 24}, Date{2023, 7, 24}, 1},
+		{Date{2023, 8, 24}, Date{2024, 8, 24}, -1},
+		{Date{2023, 8, 24}, Date{2022, 8, 24}, 1},
+	}
+
+	for _, c := range cases {
+		t.Run(fmt.Sprintf("%s cmp %s", c.a.String(), c.b.String()), func(t *testing.T) {
+			got := c.a.Compare(c.b)
+			if got != c.want {
+				t.Errorf("%v.Compare(%v) = %v; want %v", c.a, c.b, got, c.want)
+			}
+		})
+	}
+}
+
+//goland:noinspection GoStructInitializationWithoutFieldNames
 func TestDate_LastOfWeek(t *testing.T) {
 	cases := []struct {
 		date Date

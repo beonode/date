@@ -48,36 +48,12 @@ func New(year int, month time.Month, day int) (Date, error) {
 
 //goland:noinspection GoMixedReceiverTypes
 func (d Date) IsBefore(o Date) bool {
-	if d.Year < o.Year {
-		return true
-	}
-
-	if d.Year == o.Year && d.Month < o.Month {
-		return true
-	}
-
-	if d.Year == o.Year && d.Month == o.Month && d.Day < o.Day {
-		return true
-	}
-
-	return false
+	return d.Compare(o) < 0
 }
 
 //goland:noinspection GoMixedReceiverTypes
 func (d Date) IsAfter(o Date) bool {
-	if d.Year > o.Year {
-		return true
-	}
-
-	if d.Year == o.Year && d.Month > o.Month {
-		return true
-	}
-
-	if d.Year == o.Year && d.Month == o.Month && d.Day > o.Day {
-		return true
-	}
-
-	return false
+	return d.Compare(o) > 0
 }
 
 //goland:noinspection GoMixedReceiverTypes
@@ -151,6 +127,42 @@ func (d Date) LastOfWeek() Date {
 //goland:noinspection GoMixedReceiverTypes
 func (d Date) Equal(o Date) bool {
 	return d.Year == o.Year && d.Month == o.Month && d.Day == o.Day
+}
+
+//goland:noinspection GoMixedReceiverTypes
+func (d Date) Compare(o Date) int {
+	if d.Year != o.Year {
+		return cmp(d.Year, o.Year)
+	}
+	if d.Month != o.Month {
+		return cmp(int(d.Month), int(o.Month))
+	}
+	return cmp(d.Day, o.Day)
+}
+
+func cmp(a, b int) int {
+	if a < b {
+		return -1
+	}
+	if a > b {
+		return 1
+	}
+	return 0
+}
+
+//goland:noinspection GoMixedReceiverTypes
+func (d Date) IsZero() bool {
+	return d.Year == 0 && d.Month == 0 && d.Day == 0
+}
+
+//goland:noinspection GoMixedReceiverTypes
+func (d Date) Weekday() time.Weekday {
+	return d.Time(time.UTC).Weekday()
+}
+
+//goland:noinspection GoMixedReceiverTypes
+func (d Date) YearDay() int {
+	return d.Time(time.UTC).YearDay()
 }
 
 //goland:noinspection GoMixedReceiverTypes
