@@ -61,5 +61,5 @@ func (d *NullDate) Scan(value any) error {
 		return nil
 	}
 
-	return fmt.Errorf("cannot scan type %T into NullTime", value)
+	return fmt.Errorf("cannot scan type %T into NullDate", value)
 }

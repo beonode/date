@@ -38,5 +38,8 @@ func main() {
 
 Both `Date` and `NullDate` implement the `sql.Scanner` and `driver.Valuer` interfaces.
 
+## ISO 8601
+This library follows ISO 8601 conventions: dates are formatted as `YYYY-MM-DD`, and weeks start on Monday.
+
 ## License
 MIT

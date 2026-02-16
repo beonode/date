@@ -48,36 +48,12 @@ func New(year int, month time.Month, day int) (Date, error) {
 
 //goland:noinspection GoMixedReceiverTypes
 func (d Date) IsBefore(o Date) bool {
-	if d.Year < o.Year {
-		return true
-	}
-
-	if d.Year == o.Year && d.Month < o.Month {
-		return true
-	}
-
-	if d.Year == o.Year && d.Month == o.Month && d.Day < o.Day {
-		return true
-	}
-
-	return false
+	return d.Compare(o) < 0
 }
 
 //goland:noinspection GoMixedReceiverTypes
 func (d Date) IsAfter(o Date) bool {
-	if d.Year > o.Year {
-		return true
-	}
-
-	if d.Year == o.Year && d.Month > o.Month {
-		return true
-	}
-
-	if d.Year == o.Year && d.Month == o.Month && d.Day > o.Day {
-		return true
-	}
-
-	return false
+	return d.Compare(o) > 0
 }
 
 //goland:noinspection GoMixedReceiverTypes
@@ -154,6 +130,42 @@ func (d Date) Equal(o Date) bool {
 }
 
 //goland:noinspection GoMixedReceiverTypes
+func (d Date) Compare(o Date) int {
+	if d.Year != o.Year {
+		return cmp(d.Year, o.Year)
+	}
+	if d.Month != o.Month {
+		return cmp(int(d.Month), int(o.Month))
+	}
+	return cmp(d.Day, o.Day)
+}
+
+func cmp(a, b int) int {
+	if a < b {
+		return -1
+	}
+	if a > b {
+		return 1
+	}
+	return 0
+}
+
+//goland:noinspection GoMixedReceiverTypes
+func (d Date) IsZero() bool {
+	return d.Year == 0 && d.Month == 0 && d.Day == 0
+}
+
+//goland:noinspection GoMixedReceiverTypes
+func (d Date) Weekday() time.Weekday {
+	return d.Time(time.UTC).Weekday()
+}
+
+//goland:noinspection GoMixedReceiverTypes
+func (d Date) YearDay() int {
+	return d.Time(time.UTC).YearDay()
+}
+
+//goland:noinspection GoMixedReceiverTypes
 func (d Date) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.String())
 }
@@ -183,6 +195,11 @@ func (d Date) String() string {
 //goland:noinspection GoMixedReceiverTypes
 func (d Date) ShortString() string {
 	return fmt.Sprintf("%02d%02d%02d", d.Year%100, d.Month, d.Day)
+}
+
+//goland:noinspection GoMixedReceiverTypes
+func (d Date) Format(layout string) string {
+	return d.Time(time.UTC).Format(layout)
 }
 
 //goland:noinspection GoMixedReceiverTypes
@@ -248,27 +265,14 @@ func endOfDay(y int, m time.Month, d int, l *time.Location) time.Time {
 	return time.Date(y, m, d, 23, 59, 59, 1e9-1, l)
 }
 
-var monthDays = map[int]int{
-	1:  31,
-	2:  28,
-	3:  31,
-	4:  30,
-	5:  31,
-	6:  30,
-	7:  31,
-	8:  31,
-	9:  30,
-	10: 31,
-	11: 30,
-	12: 31,
-}
+var monthDays = [13]int{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 
 func daysInMonth(year int, month time.Month) int {
 	if month == 2 && isLeapYear(year) {
 		return 29
 	}
 
-	return monthDays[int(month)]
+	return monthDays[month]
 }
 
 func isLeapYear(year int) bool {

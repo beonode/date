@@ -219,6 +219,29 @@ func TestDate_ShortString(t *testing.T) {
 }
 
 //goland:noinspection GoStructInitializationWithoutFieldNames
+func TestDate_Format(t *testing.T) {
+	d := Date{2023, 8, 24}
+	cases := []struct {
+		layout string
+		want   string
+	}{
+		{"Jan 2, 2006", "Aug 24, 2023"},
+		{"02/01/2006", "24/08/2023"},
+		{"Monday", "Thursday"},
+		{time.DateOnly, "2023-08-24"},
+	}
+
+	for _, c := range cases {
+		t.Run(c.layout, func(t *testing.T) {
+			got := d.Format(c.layout)
+			if got != c.want {
+				t.Errorf("Format(%q) = %q; want %q", c.layout, got, c.want)
+			}
+		})
+	}
+}
+
+//goland:noinspection GoStructInitializationWithoutFieldNames
 func TestDate_IsBefore(t *testing.T) {
 	cases := []struct {
 		a, b Date
@@ -515,6 +538,31 @@ func TestDate_Equal(t *testing.T) {
 			got := c.a.Equal(c.b)
 			if got != c.want {
 				t.Errorf("%v.Equal(%v) = %v; want %v", c.a, c.b, got, c.want)
+			}
+		})
+	}
+}
+
+//goland:noinspection GoStructInitializationWithoutFieldNames
+func TestDate_Compare(t *testing.T) {
+	cases := []struct {
+		a, b Date
+		want int
+	}{
+		{Date{2023, 8, 24}, Date{2023, 8, 24}, 0},
+		{Date{2023, 8, 24}, Date{2023, 8, 25}, -1},
+		{Date{2023, 8, 24}, Date{2023, 8, 23}, 1},
+		{Date{2023, 8, 24}, Date{2023, 9, 24}, -1},
+		{Date{2023, 8, 24}, Date{2023, 7, 24}, 1},
+		{Date{2023, 8, 24}, Date{2024, 8, 24}, -1},
+		{Date{2023, 8, 24}, Date{2022, 8, 24}, 1},
+	}
+
+	for _, c := range cases {
+		t.Run(fmt.Sprintf("%s cmp %s", c.a.String(), c.b.String()), func(t *testing.T) {
+			got := c.a.Compare(c.b)
+			if got != c.want {
+				t.Errorf("%v.Compare(%v) = %v; want %v", c.a, c.b, got, c.want)
 			}
 		})
 	}
