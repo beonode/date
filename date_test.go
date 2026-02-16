@@ -219,6 +219,29 @@ func TestDate_ShortString(t *testing.T) {
 }
 
 //goland:noinspection GoStructInitializationWithoutFieldNames
+func TestDate_Format(t *testing.T) {
+	d := Date{2023, 8, 24}
+	cases := []struct {
+		layout string
+		want   string
+	}{
+		{"Jan 2, 2006", "Aug 24, 2023"},
+		{"02/01/2006", "24/08/2023"},
+		{"Monday", "Thursday"},
+		{time.DateOnly, "2023-08-24"},
+	}
+
+	for _, c := range cases {
+		t.Run(c.layout, func(t *testing.T) {
+			got := d.Format(c.layout)
+			if got != c.want {
+				t.Errorf("Format(%q) = %q; want %q", c.layout, got, c.want)
+			}
+		})
+	}
+}
+
+//goland:noinspection GoStructInitializationWithoutFieldNames
 func TestDate_IsBefore(t *testing.T) {
 	cases := []struct {
 		a, b Date

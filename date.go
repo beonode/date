@@ -198,6 +198,11 @@ func (d Date) ShortString() string {
 }
 
 //goland:noinspection GoMixedReceiverTypes
+func (d Date) Format(layout string) string {
+	return d.Time(time.UTC).Format(layout)
+}
+
+//goland:noinspection GoMixedReceiverTypes
 func (d Date) Value() (driver.Value, error) {
 	return d.String(), nil
 }
