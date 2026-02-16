@@ -3,8 +3,6 @@ package date
 import (
 	"bytes"
 	"database/sql/driver"
-	"fmt"
-	"time"
 )
 
 var nullBytes = []byte("null")
@@ -50,16 +48,13 @@ func (d NullDate) Value() (value driver.Value, err error) {
 func (d *NullDate) Scan(value any) error {
 	if value == nil {
 		d.Valid = false
+		d.Date = Date{}
 		return nil
 	}
 
-	if t, ok := value.(time.Time); ok {
-		if err := d.Date.Scan(t); err != nil {
-			return err
-		}
-		d.Valid = true
-		return nil
+	if err := d.Date.Scan(value); err != nil {
+		return err
 	}
-
-	return fmt.Errorf("cannot scan type %T into NullTime", value)
+	d.Valid = true
+	return nil
 }

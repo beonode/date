@@ -94,26 +94,34 @@ func TestNullDate_UnmarshalJSON_Errors(t *testing.T) {
 
 func TestNullDate_Scan(t *testing.T) {
 	cases := []struct {
-		input interface{}
+		name  string
+		input any
 		want  NullDate
 	}{
 		{
+			name:  "nil",
 			input: nil,
-			want: NullDate{
-				Valid: false,
-			},
+			want:  NullDate{Valid: false},
 		},
 		{
+			name:  "time.Time",
 			input: time.Date(2023, 9, 28, 0, 0, 0, 0, time.UTC),
-			want: NullDate{
-				Valid: true,
-				Date:  Date{2023, 9, 28},
-			},
+			want:  NullDate{Valid: true, Date: Date{2023, 9, 28}},
+		},
+		{
+			name:  "string",
+			input: "2023-09-28",
+			want:  NullDate{Valid: true, Date: Date{2023, 9, 28}},
+		},
+		{
+			name:  "[]byte",
+			input: []byte("2023-09-28"),
+			want:  NullDate{Valid: true, Date: Date{2023, 9, 28}},
 		},
 	}
 
 	for _, c := range cases {
-		t.Run(fmt.Sprintf("%v", c.input), func(t *testing.T) {
+		t.Run(c.name, func(t *testing.T) {
 			var date NullDate
 			err := date.Scan(c.input)
 			if err != nil {
@@ -121,7 +129,7 @@ func TestNullDate_Scan(t *testing.T) {
 			}
 
 			if date.Valid != c.want.Valid || !date.Date.Equal(c.want.Date) {
-				t.Errorf("NullDate = %v; want %v", date.Valid, c.want.Valid)
+				t.Errorf("NullDate = %v; want %v", date, c.want)
 			}
 		})
 	}

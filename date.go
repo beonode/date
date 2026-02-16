@@ -192,12 +192,25 @@ func (d Date) Value() (driver.Value, error) {
 
 //goland:noinspection GoMixedReceiverTypes
 func (d *Date) Scan(value any) error {
-	if t, ok := value.(time.Time); ok {
-		d.Year, d.Month, d.Day = t.Year(), t.Month(), t.Day()
-		return nil
+	switch v := value.(type) {
+	case time.Time:
+		d.Year, d.Month, d.Day = v.Year(), v.Month(), v.Day()
+	case string:
+		parsed, err := FromISO8601(v)
+		if err != nil {
+			return err
+		}
+		*d = parsed
+	case []byte:
+		parsed, err := FromISO8601(string(v))
+		if err != nil {
+			return err
+		}
+		*d = parsed
+	default:
+		return fmt.Errorf("cannot scan type %T into Date", value)
 	}
-
-	return fmt.Errorf("cannot scan type %T into Date", value)
+	return nil
 }
 
 func StartOfDay(t time.Time) time.Time {
