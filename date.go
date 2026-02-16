@@ -260,27 +260,14 @@ func endOfDay(y int, m time.Month, d int, l *time.Location) time.Time {
 	return time.Date(y, m, d, 23, 59, 59, 1e9-1, l)
 }
 
-var monthDays = map[int]int{
-	1:  31,
-	2:  28,
-	3:  31,
-	4:  30,
-	5:  31,
-	6:  30,
-	7:  31,
-	8:  31,
-	9:  30,
-	10: 31,
-	11: 30,
-	12: 31,
-}
+var monthDays = [13]int{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 
 func daysInMonth(year int, month time.Month) int {
 	if month == 2 && isLeapYear(year) {
 		return 29
 	}
 
-	return monthDays[int(month)]
+	return monthDays[month]
 }
 
 func isLeapYear(year int) bool {
